@@ -2,30 +2,34 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { Send, Bot, User, Headphones, ArrowLeft, Zap, CheckCircle, Clock, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Headphones, ArrowLeft, Sparkles, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSocket } from '../hooks/useSocket';
 import type { Ticket, Message, TicketQueuedPayload } from '../types';
 
 const API = '/api';
+const BACKEND = 'http://localhost:4000';
 
 function ChatBubble({ message }: { message: Message }) {
   const isCustomer = message.sender === 'CUSTOMER';
   const isAI = message.sender === 'AI_SYSTEM';
-  const BACKEND = 'http://localhost:4000';
 
   if (isAI) {
     return (
-      <div className="flex gap-2.5 animate-slide-up">
-        <div className="w-7 h-7 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Bot className="w-3.5 h-3.5 text-teal-400" />
+      <div className="flex gap-3 animate-slide-up">
+        <div className="w-8 h-8 rounded-[10px] bg-teal-500/10 border border-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Bot className="w-4 h-4 text-teal-400" />
         </div>
-        <div className="max-w-xs">
-          <p className="text-xs text-teal-400 font-semibold mb-1">AI System</p>
-          <div className="bg-teal-950/50 border border-teal-800/40 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-            {message.text.replace(/\*\*(.*?)\*\*/g, '$1')}
+        <div className="max-w-sm">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-semibold text-teal-400">AI Triage</span>
+            <span className="text-xs text-slate-600 tabular">{format(new Date(message.createdAt), 'HH:mm')}</span>
           </div>
-          <p className="text-xs text-slate-600 mt-1">{format(new Date(message.createdAt), 'HH:mm')}</p>
+          <div className="bg-teal-950/50 border border-teal-800/30 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-300 leading-relaxed space-y-0.5">
+            {message.text.replace(/\*\*(.*?)\*\*/g, '$1').split('\n').map((l, i) => (
+              <p key={i} className={clsx(l === '' && 'h-1', 'text-sm leading-relaxed')}>{l || ' '}</p>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -33,40 +37,44 @@ function ChatBubble({ message }: { message: Message }) {
 
   if (isCustomer) {
     return (
-      <div className="flex gap-2.5 justify-end animate-slide-up">
-        <div className="max-w-xs">
-          <div className="bg-teal-600 rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm text-white leading-relaxed">
+      <div className="flex gap-3 justify-end animate-slide-up">
+        <div className="max-w-sm">
+          <div className="flex items-center justify-end gap-2 mb-1.5">
+            <span className="text-xs text-slate-600 tabular">{format(new Date(message.createdAt), 'HH:mm')}</span>
+            <span className="text-xs font-semibold text-slate-400">You</span>
+          </div>
+          <div className="bg-teal-600/90 rounded-2xl rounded-tr-sm px-4 py-3 text-sm text-white leading-relaxed">
             {message.text}
             {message.imageUrl && (
               <img
                 src={message.imageUrl.startsWith('/') ? `${BACKEND}${message.imageUrl}` : message.imageUrl}
                 alt="Attachment"
-                className="mt-2 rounded-lg max-w-full max-h-40 object-cover cursor-pointer"
+                className="mt-2.5 rounded-xl max-w-full max-h-44 object-cover cursor-pointer outline outline-1 outline-white/10 hover:opacity-90 transition-opacity"
                 onClick={() => window.open(`${BACKEND}${message.imageUrl}`, '_blank')}
               />
             )}
           </div>
-          <p className="text-xs text-slate-600 mt-1 text-right">{format(new Date(message.createdAt), 'HH:mm')}</p>
         </div>
-        <div className="w-7 h-7 rounded-full bg-teal-600/30 border border-teal-600/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <User className="w-3.5 h-3.5 text-teal-300" />
+        <div className="w-8 h-8 rounded-[10px] bg-teal-600/20 border border-teal-600/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <User className="w-4 h-4 text-teal-300" />
         </div>
       </div>
     );
   }
 
-  // Agent
   return (
-    <div className="flex gap-2.5 animate-slide-up">
-      <div className="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Headphones className="w-3.5 h-3.5 text-indigo-400" />
+    <div className="flex gap-3 animate-slide-up">
+      <div className="w-8 h-8 rounded-[10px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Headphones className="w-4 h-4 text-indigo-400" />
       </div>
-      <div className="max-w-xs">
-        <p className="text-xs text-indigo-400 font-semibold mb-1">Support Agent</p>
-        <div className="bg-slate-800 border border-slate-700/50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-slate-200 leading-relaxed">
+      <div className="max-w-sm">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-xs font-semibold text-indigo-400">Support Agent</span>
+          <span className="text-xs text-slate-600 tabular">{format(new Date(message.createdAt), 'HH:mm')}</span>
+        </div>
+        <div className="bg-white/[0.05] border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-slate-200 leading-relaxed">
           {message.text}
         </div>
-        <p className="text-xs text-slate-600 mt-1">{format(new Date(message.createdAt), 'HH:mm')}</p>
       </div>
     </div>
   );
@@ -88,18 +96,11 @@ export default function CustomerChat() {
 
   useEffect(() => {
     if (!ticketId) return;
-
-    // Join room immediately so we catch real-time events during fetch
     joinRoom(ticketId);
-
     axios.get(`${API}/tickets/${ticketId}`)
-      .then(({ data }) => {
-        setTicket(data);
-        setMessages(data.messages || []);
-      })
+      .then(({ data }) => { setTicket(data); setMessages(data.messages || []); })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
-
     return () => { leaveRoom(ticketId); };
   }, [ticketId, joinRoom, leaveRoom]);
 
@@ -108,23 +109,18 @@ export default function CustomerChat() {
       setMessages(prev => prev.find(m => m.id === msg.id) ? prev : [...prev, msg]);
       setAgentTyping(false);
     });
-
     socket.on('ticket:updated', (updated: Ticket) => {
       if (updated.id === ticketId) setTicket(updated);
     });
-
-    // Update ticket status when AI finishes triage
-    socket.on('ticket:queued', (payload: { ticketId: string; updatedTicket: Ticket }) => {
+    socket.on('ticket:queued', (payload: TicketQueuedPayload) => {
       if (payload.ticketId === ticketId) setTicket(payload.updatedTicket);
     });
-
     socket.on('agent:typing', (data: { ticketId: string }) => {
       if (data.ticketId === ticketId) {
         setAgentTyping(true);
         setTimeout(() => setAgentTyping(false), 3000);
       }
     });
-
     return () => {
       socket.off('message:received');
       socket.off('ticket:updated');
@@ -133,9 +129,7 @@ export default function CustomerChat() {
     };
   }, [socket, ticketId]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, agentTyping]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, agentTyping]);
 
   function handleSend() {
     if (!text.trim() || !ticketId) return;
@@ -144,95 +138,90 @@ export default function CustomerChat() {
     inputRef.current?.focus();
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-teal-400 animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-mesh flex items-center justify-center">
+      <Loader2 className="w-5 h-5 text-teal-400 animate-spin" />
+    </div>
+  );
 
-  if (notFound || !ticket) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4 text-slate-400">
-        <p className="text-lg font-semibold">Ticket not found</p>
-        <Link to="/" className="text-teal-400 text-sm hover:underline">← Submit a new ticket</Link>
-      </div>
-    );
-  }
+  if (notFound || !ticket) return (
+    <div className="min-h-screen bg-mesh flex flex-col items-center justify-center gap-4 text-slate-500">
+      <p className="font-semibold">Ticket not found</p>
+      <Link to="/portal" className="text-teal-400 text-sm hover:underline">← Submit a new ticket</Link>
+    </div>
+  );
 
-  const statusColor = ticket.status === 'RESOLVED' ? 'text-emerald-400' : ticket.status === 'ASSIGNED' ? 'text-blue-400' : 'text-yellow-400';
-  const StatusIcon = ticket.status === 'RESOLVED' ? CheckCircle : Clock;
+  const isResolved = ticket.status === 'RESOLVED';
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col pt-12">
+    <div className="min-h-screen bg-mesh bg-dot-grid flex flex-col pt-12">
+      {/* Ambient */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-64 bg-teal-500/5 blur-3xl rounded-full" />
+      </div>
 
       {/* Header */}
-      <div className="flex-shrink-0 bg-slate-900/80 backdrop-blur border-b border-slate-800/60 px-4 py-3">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <Link to="/" className="text-slate-500 hover:text-slate-300 transition">
+      <div className="flex-shrink-0 glass border-b border-white/[0.06] px-4 py-3">
+        <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <Link to="/portal" className="p-2 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all min-w-[36px] min-h-[36px] flex items-center justify-center">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-bold text-white truncate">Support Ticket</p>
-              <span className="text-xs font-mono text-slate-500">#{ticket.id.slice(0, 8).toUpperCase()}</span>
+              <p className="text-sm font-bold text-white">Support Ticket</p>
+              <code className="text-xs font-mono text-slate-500 tabular">#{ticket.id.slice(0, 8).toUpperCase()}</code>
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <StatusIcon className={`w-3 h-3 ${statusColor}`} />
-              <span className={`text-xs font-semibold ${statusColor}`}>{ticket.status}</span>
-              {ticket.category !== 'UNASSIGNED' && (
-                <span className="text-xs text-slate-500">· {ticket.category}</span>
-              )}
+            <div className="flex items-center gap-2 mt-0.5">
+              {isResolved
+                ? <><CheckCircle className="w-3 h-3 text-emerald-400" /><span className="text-xs text-emerald-400 font-semibold">Resolved</span></>
+                : <><Clock className="w-3 h-3 text-blue-400" /><span className="text-xs text-blue-400 font-semibold">{ticket.status}</span></>}
+              {ticket.category !== 'UNASSIGNED' && <span className="text-xs text-slate-600">· {ticket.category}</span>}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-teal-500/10 border border-teal-500/20 rounded-full px-2.5 py-1">
-            <Zap className="w-3 h-3 text-teal-400" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-teal-500/8 border border-teal-500/15">
+            <Sparkles className="w-3 h-3 text-teal-400" />
             <span className="text-xs text-teal-400 font-semibold">AI Triage</span>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto py-5">
-        <div className="max-w-lg mx-auto px-4 space-y-4">
-
-          {/* Welcome note */}
+      <div className="flex-1 overflow-y-auto py-6">
+        <div className="max-w-2xl mx-auto px-4 space-y-5">
           <div className="flex justify-center">
-            <div className="text-xs text-slate-500 bg-slate-800/50 border border-slate-700/40 rounded-full px-3 py-1">
-              Your ticket has been received. An agent will respond shortly.
-            </div>
+            <span className="text-xs text-slate-600 bg-white/[0.03] border border-white/[0.05] rounded-full px-3 py-1">
+              Ticket received · AI analysis running
+            </span>
           </div>
 
           {messages.map(msg => <ChatBubble key={msg.id} message={msg} />)}
 
-          {/* Agent typing indicator */}
           {agentTyping && (
-            <div className="flex gap-2.5 animate-fade-in">
-              <div className="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center flex-shrink-0">
-                <Headphones className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex gap-3 animate-fade-in">
+              <div className="w-8 h-8 rounded-[10px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                <Headphones className="w-4 h-4 text-indigo-400" />
               </div>
-              <div className="bg-slate-800 border border-slate-700/50 rounded-2xl rounded-tl-sm px-3.5 py-2.5">
-                <div className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="bg-white/[0.05] border border-white/[0.07] rounded-2xl rounded-tl-sm px-4 py-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full bounce-dot" />
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full bounce-dot" />
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full bounce-dot" />
                 </div>
               </div>
             </div>
           )}
-
           <div ref={bottomRef} />
         </div>
       </div>
 
       {/* Input */}
-      <div className="flex-shrink-0 bg-slate-900/80 backdrop-blur border-t border-slate-800/60 px-4 py-3">
-        <div className="max-w-lg mx-auto">
-          {ticket.status === 'RESOLVED' ? (
-            <div className="flex items-center justify-center gap-2 py-3 text-emerald-400 text-sm">
+      <div className="flex-shrink-0 glass border-t border-white/[0.06] px-4 py-3">
+        <div className="max-w-2xl mx-auto">
+          {isResolved ? (
+            <div className="flex items-center justify-center gap-2 py-3 text-sm text-emerald-400">
               <CheckCircle className="w-4 h-4" />
-              This ticket has been resolved. <Link to="/" className="underline hover:text-emerald-300">Open a new ticket</Link>
+              Ticket resolved.{' '}
+              <Link to="/portal" className="underline hover:text-emerald-300 transition-colors">Open a new ticket</Link>
             </div>
           ) : (
             <div className="flex items-end gap-2">
@@ -241,19 +230,19 @@ export default function CustomerChat() {
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Type a message... (Enter to send)"
+                placeholder="Type a message… (Enter to send)"
                 rows={1}
-                className="flex-1 bg-slate-800/60 border border-slate-700/50 rounded-2xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500/50 transition resize-none max-h-32"
-                style={{ minHeight: '42px' }}
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-2xl px-4 py-2.5 text-sm text-white placeholder-slate-600 resize-none max-h-32 outline-none focus:border-teal-500/40 focus:bg-white/[0.06] transition-all duration-200"
+                style={{ minHeight: '44px' }}
               />
               <button
                 onClick={handleSend}
                 disabled={!text.trim()}
                 className={clsx(
-                  'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition',
+                  'btn-press w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-200',
                   text.trim()
-                    ? 'bg-teal-500 hover:bg-teal-400 text-slate-950 active:scale-95'
-                    : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                    ? 'bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-glow-teal'
+                    : 'bg-white/[0.04] text-slate-700 cursor-not-allowed border border-white/[0.06]'
                 )}
               >
                 <Send className="w-4 h-4" />
