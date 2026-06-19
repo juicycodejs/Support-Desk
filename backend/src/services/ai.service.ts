@@ -124,13 +124,16 @@ Provide a thorough, empathetic analysis following the JSON schema exactly.`,
       },
     });
 
-    await prisma.message.create({
+    const aiMessage = await prisma.message.create({
       data: {
         ticketId,
         text: `**AI Triage Complete** ✦\n\n**Draft Response:**\n${analysis.aiDraftResponse}\n\n**Key Issues Detected:**\n${analysis.keyIssues.map(i => `• ${i}`).join('\n')}\n\n**Suggested Actions:**\n${analysis.suggestedActions.map(a => `→ ${a}`).join('\n')}`,
         sender: 'AI_SYSTEM',
       },
     });
+
+    // Deliver AI message to the customer's live chat room
+    io.to(`room_${ticketId}`).emit('message:received', aiMessage);
 
     io.emit('ticket:queued', {
       ticketId,

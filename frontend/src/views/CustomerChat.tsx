@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Send, Bot, User, Headphones, ArrowLeft, Zap, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSocket } from '../hooks/useSocket';
-import type { Ticket, Message } from '../types';
+import type { Ticket, Message, TicketQueuedPayload } from '../types';
 
 const API = '/api';
 
@@ -89,11 +89,13 @@ export default function CustomerChat() {
   useEffect(() => {
     if (!ticketId) return;
 
+    // Join room immediately so we catch real-time events during fetch
+    joinRoom(ticketId);
+
     axios.get(`${API}/tickets/${ticketId}`)
       .then(({ data }) => {
         setTicket(data);
         setMessages(data.messages || []);
-        joinRoom(ticketId);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
@@ -111,6 +113,11 @@ export default function CustomerChat() {
       if (updated.id === ticketId) setTicket(updated);
     });
 
+    // Update ticket status when AI finishes triage
+    socket.on('ticket:queued', (payload: { ticketId: string; updatedTicket: Ticket }) => {
+      if (payload.ticketId === ticketId) setTicket(payload.updatedTicket);
+    });
+
     socket.on('agent:typing', (data: { ticketId: string }) => {
       if (data.ticketId === ticketId) {
         setAgentTyping(true);
@@ -121,6 +128,7 @@ export default function CustomerChat() {
     return () => {
       socket.off('message:received');
       socket.off('ticket:updated');
+      socket.off('ticket:queued');
       socket.off('agent:typing');
     };
   }, [socket, ticketId]);
