@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { formatDistanceToNow, format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import {
   Inbox, CheckCircle, Clock, AlertTriangle, BarChart2, Send,
   Sparkles, ChevronRight, RefreshCw, Eye, Zap, Activity,
-  MessageSquare, User, Filter, Search,
+  MessageSquare, User, Filter, Search, LogOut,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSocket } from '../hooks/useSocket';
@@ -12,6 +13,7 @@ import { PriorityBadge } from '../components/PriorityBadge';
 import { StatusBadge } from '../components/StatusBadge';
 import { MessageBubble } from '../components/MessageBubble';
 import { SentimentMeter } from '../components/SentimentMeter';
+import { SESSION_KEY } from './AgentLogin';
 import type { Ticket, Message, TicketQueuedPayload, Stats } from '../types';
 
 const API = '/api';
@@ -22,6 +24,13 @@ const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, 
 
 export default function AgentDashboard() {
   const { socket, joinRoom, leaveRoom, sendMessage, resolveTicket } = useSocket();
+  const navigate = useNavigate();
+  const agentSession = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}') as { name?: string };
+
+  function handleSignOut() {
+    sessionStorage.removeItem(SESSION_KEY);
+    navigate('/agent');
+  }
 
   const [tab, setTab] = useState<Tab>('queue');
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -174,9 +183,14 @@ export default function AgentDashboard() {
               <div className="w-7 h-7 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 text-teal-400" />
               </div>
-              <h1 className="font-bold text-slate-100 text-sm tracking-tight">AnomalyGuard AI</h1>
+              <div>
+                <h1 className="font-bold text-slate-100 text-sm tracking-tight">AnomalyGuard AI</h1>
+                {agentSession.name && (
+                  <p className="text-xs text-slate-500 leading-none mt-0.5">{agentSession.name}</p>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {liveCount > 0 && (
                 <span className="px-2 py-0.5 bg-teal-500/20 text-teal-400 text-xs rounded-full border border-teal-500/30 font-mono animate-pulse-slow">
                   +{liveCount} live
@@ -185,6 +199,11 @@ export default function AgentDashboard() {
               <button onClick={() => { fetchTickets(); fetchStats(); setLiveCount(0); }}
                 className="p-1.5 hover:bg-slate-800 rounded-lg transition text-slate-400 hover:text-white">
                 <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={handleSignOut}
+                title="Sign out"
+                className="p-1.5 hover:bg-red-900/30 rounded-lg transition text-slate-500 hover:text-red-400">
+                <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
