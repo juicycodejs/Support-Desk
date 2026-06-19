@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { Upload, Send, CheckCircle, AlertCircle, ImageIcon, X, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Send, CheckCircle, AlertCircle, ImageIcon, X, Zap, MessageSquare } from 'lucide-react';
 import clsx from 'clsx';
 
 const API = '/api';
@@ -60,8 +61,8 @@ export default function CustomerPortal() {
             <CheckCircle className="w-10 h-10 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Ticket Submitted</h2>
-            <p className="text-slate-400">Our AI is analyzing your case right now.</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Ticket Submitted!</h2>
+            <p className="text-slate-400">Our AI is analyzing your case. Chat with a support agent below.</p>
           </div>
           <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Your Ticket ID</p>
@@ -69,13 +70,20 @@ export default function CustomerPortal() {
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-400 bg-teal-950/30 border border-teal-800/30 rounded-lg p-3">
             <Zap className="w-4 h-4 text-teal-400 flex-shrink-0" />
-            <span>AI triage is running in background. An agent will respond shortly.</span>
+            <span>AI triage running in background. You can chat with an agent in real time.</span>
           </div>
+          <Link
+            to={`/chat/${ticketId}`}
+            className="flex items-center justify-center gap-2 w-full py-3.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl transition active:scale-[0.98]"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Open Live Chat
+          </Link>
           <button
             onClick={() => { setStep('form'); setForm({ customerName: '', customerEmail: '', text: '' }); setImage(null); setPreview(null); }}
-            className="text-sm text-slate-400 hover:text-white transition underline"
+            className="text-sm text-slate-500 hover:text-slate-300 transition underline"
           >
-            Submit another ticket
+            Submit another ticket instead
           </button>
         </div>
       </div>
