@@ -1,12 +1,75 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { Send, CheckCircle, AlertCircle, ImageIcon, X, Zap, MessageSquare } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Send, CheckCircle, AlertCircle, ImageIcon, X, Zap, MessageSquare, Search, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 
 const API = '/api';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
+
+function ResumeChat() {
+  const navigate = useNavigate();
+  const [ticketInput, setTicketInput] = useState('');
+  const [lookupError, setLookupError] = useState('');
+  const [looking, setLooking] = useState(false);
+
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    const raw = ticketInput.trim();
+    if (!raw) return;
+    setLookupError('');
+    setLooking(true);
+    try {
+      // Accept both short IDs (first 8 chars) and full UUIDs
+      const { data } = await axios.get(`${API}/tickets?limit=100`);
+      const match = (data.tickets as Array<{ id: string }>).find(
+        t => t.id === raw || t.id.slice(0, 8).toUpperCase() === raw.toUpperCase()
+      );
+      if (match) {
+        navigate(`/chat/${match.id}`);
+      } else {
+        setLookupError('No ticket found with that ID. Check for typos and try again.');
+      }
+    } catch {
+      setLookupError('Could not reach the server. Please try again.');
+    } finally {
+      setLooking(false);
+    }
+  }
+
+  return (
+    <div className="mt-8 border-t border-slate-800/60 pt-6">
+      <p className="text-center text-xs text-slate-500 mb-3 uppercase tracking-wider font-semibold">Already have a ticket?</p>
+      <form onSubmit={handleLookup} className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+          <input
+            value={ticketInput}
+            onChange={e => { setTicketInput(e.target.value); setLookupError(''); }}
+            placeholder="Enter your Ticket ID (e.g. 3954C7E6)"
+            className="w-full bg-slate-800/60 border border-slate-700/50 rounded-xl pl-9 pr-3 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30 transition font-mono"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={!ticketInput.trim() || looking}
+          className="flex items-center gap-1.5 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          {looking
+            ? <span className="w-4 h-4 border-2 border-slate-400/30 border-t-white rounded-full animate-spin" />
+            : <><ArrowRight className="w-4 h-4" /> Resume</>
+          }
+        </button>
+      </form>
+      {lookupError && (
+        <p className="text-xs text-red-400 mt-2 flex items-center gap-1.5">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{lookupError}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function CustomerPortal() {
   const [step, setStep] = useState<Step>('form');
@@ -85,6 +148,7 @@ export default function CustomerPortal() {
           >
             Submit another ticket instead
           </button>
+          <ResumeChat />
         </div>
       </div>
     );
@@ -213,6 +277,8 @@ export default function CustomerPortal() {
             )}
           </button>
         </form>
+
+        <ResumeChat />
 
         <p className="text-center text-xs text-slate-600 mt-6">
           Powered by AnomalyGuard AI · Gemini-2.5-Flash Vision
