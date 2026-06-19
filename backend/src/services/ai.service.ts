@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 import * as fs from 'fs';
 import * as path from 'path';
 import { prisma } from '../config/database';
-import { createTrace } from '../config/langfuse';
+import { createTrace, langfuse } from '../config/langfuse';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
@@ -142,7 +142,7 @@ Provide a thorough, empathetic analysis following the JSON schema exactly.`,
       latencyMs,
     });
 
-    await trace.flush();
+    await langfuse.flushAsync().catch(() => {});
   } catch (error) {
     console.error('AI Ingestion Pipeline Failed:', error);
 
@@ -194,7 +194,7 @@ Improve this into a professional, empathetic customer-facing reply. Keep it conc
 
     const improved = response.text ?? agentInput;
     trace.generation({ name: 'reply-improvement', model: 'gemini-2.5-flash', input: agentInput, output: improved });
-    await trace.flush();
+    await langfuse.flushAsync().catch(() => {});
     return improved;
   } catch {
     return agentInput;
