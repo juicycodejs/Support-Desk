@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Headphones, Lock, Eye, EyeOff, AlertCircle, Zap, ShieldCheck } from 'lucide-react';
 import clsx from 'clsx';
+import { ROLE_KEY } from './RoleSelect';
 
 // Demo credentials — swap for a real auth endpoint in production
 const DEMO_AGENTS = [
@@ -33,6 +34,7 @@ export default function AgentLogin() {
 
     if (agent) {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify({ name: agent.name, username: agent.username, loginAt: Date.now() }));
+        sessionStorage.setItem(ROLE_KEY, 'agent');
       navigate('/agent/dashboard');
     } else {
       setError('Invalid username or password.');

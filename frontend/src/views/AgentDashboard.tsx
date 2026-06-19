@@ -15,6 +15,7 @@ import { MessageBubble } from '../components/MessageBubble';
 import { SentimentMeter } from '../components/SentimentMeter';
 import { SESSION_KEY } from './AgentLogin';
 import type { Ticket, Message, TicketQueuedPayload, Stats } from '../types';
+import { ROLE_KEY } from './RoleSelect';
 
 const API = '/api';
 
@@ -29,7 +30,8 @@ export default function AgentDashboard() {
 
   function handleSignOut() {
     sessionStorage.removeItem(SESSION_KEY);
-    navigate('/agent');
+    sessionStorage.removeItem(ROLE_KEY);
+    navigate('/');
   }
 
   const [tab, setTab] = useState<Tab>('queue');
