@@ -55,7 +55,7 @@ export default function CustomerPortal() {
 
   if (step === 'success') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 pt-16">
         <div className="max-w-md w-full text-center space-y-6 animate-fade-in">
           <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto">
             <CheckCircle className="w-10 h-10 text-emerald-400" />
@@ -91,7 +91,7 @@ export default function CustomerPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 pt-16">
       <div className="max-w-xl w-full animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8">

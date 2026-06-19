@@ -165,7 +165,7 @@ export default function CustomerChat() {
   const StatusIcon = ticket.status === 'RESOLVED' ? CheckCircle : Clock;
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="min-h-screen bg-slate-950 flex flex-col pt-12">
 
       {/* Header */}
       <div className="flex-shrink-0 bg-slate-900/80 backdrop-blur border-b border-slate-800/60 px-4 py-3">

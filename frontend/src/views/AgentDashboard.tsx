@@ -171,7 +171,7 @@ export default function AgentDashboard() {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex h-screen bg-slate-950 text-white font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-950 text-white font-sans overflow-hidden pt-12">
 
       {/* ── Left Rail: Ticket Queue ─────────────────────────────────────────── */}
       <div className="w-[340px] flex-shrink-0 flex flex-col border-r border-slate-800/60">
