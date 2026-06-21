@@ -1,4 +1,4 @@
-# AnomalyGuard AI — Multimodal E-Commerce Support Desk
+#  Support Desk
 
 A production-grade, real-time AI support desk that uses **Gemini 2.5 Flash** vision to automatically triage customer tickets, classify issues, score sentiment, and draft responses — all streamed live to agent dashboards via **Socket.io**.
 
